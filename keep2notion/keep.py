@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import pendulum
 from keep2notion.notion_helper import NotionHelper
 import requests
-import utils
+from keep2notion import utils
 from keep2notion.config import workout_properties_type_dict
 
 LOGIN_API = "https://api.gotokeep.com/v1.1/users/login"
@@ -28,7 +28,11 @@ def get_equipment():
         response = requests.get(
             f"https://api.gotokeep.com/equipment-webapp/enableBind/my/all/list?firstCategory={category}", headers=keep_headers)
         if response.ok:
-            results.extend(response.json().get("data").get("itemList"))
+            data = response.json().get("data")
+            if data:
+                itemList = data.get("itemList")
+                if itemList:
+                    results.extend(itemList)
         else:
             print("请求失败:", response.text)
     return results
@@ -155,7 +159,6 @@ def insert_equipment_to_notion(equipments, database_id):
                 existing_ids[id] = page_id
     # 遍历数据并插入到 Notion
     for entry in equipments:
-        print(equipment_dict.get(entry["equipmentType"]))
         entry_id = entry.get("itemId")
         if entry_id in existing_ids:
             continue  # 跳过已存在的数据
@@ -243,8 +246,8 @@ def get_run_data(log,equipment_dict):
         type_name = None
         if (log.get("type") == "running"):
             type_name = "跑步"
-        elif (log.get("type") == "running"):
-            type_name = "行走"
+        elif (log.get("type") == "hiking"):
+            type_name = "步行"
         elif (log.get("type") == "cycling"):
             type_name = "骑行"
         if type_name:

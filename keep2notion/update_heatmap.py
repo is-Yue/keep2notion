@@ -63,7 +63,8 @@ def update_heatmap(dir, block_id):
         heatmap_url = f"https://heatmap.malinkang.com/?image={image_url}"
         if block_id:
             notion_helper.update_heatmap(block_id=block_id, url=heatmap_url)
-    
+
+notion_helper = NotionHelper()
+
 if __name__ == "__main__":
-    notion_helper = NotionHelper()
     main()
